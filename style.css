@@ -13,6 +13,8 @@ body {
     align-items: center;
     min-height: 100vh;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
 }
 
 .main-wrapper {
@@ -68,6 +70,7 @@ body {
     box-shadow: 0 0 20px #0f0;
     max-width: 100%;
     aspect-ratio: 800 / 600;
+    touch-action: none;
 }
 
 #gameCanvas {
@@ -184,6 +187,70 @@ body {
     margin-bottom: 0;
 }
 
+.mobile-controls {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.joystick-area {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    width: 150px;
+    height: 150px;
+    pointer-events: all;
+}
+
+.joystick-base {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 255, 0, 0.1);
+    border: 3px solid rgba(0, 255, 0, 0.5);
+    border-radius: 50%;
+    position: relative;
+}
+
+.joystick-stick {
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 255, 0, 0.3);
+    border: 3px solid #0f0;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.1s;
+}
+
+.fire-btn {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 0, 0, 0.3);
+    border: 3px solid #f00;
+    border-radius: 50%;
+    font-size: 40px;
+    color: #f00;
+    cursor: pointer;
+    pointer-events: all;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.fire-btn:active {
+    background: rgba(255, 0, 0, 0.5);
+    transform: scale(0.95);
+}
+
 @media (max-width: 1100px) {
     .main-wrapper {
         flex-direction: column;
@@ -203,5 +270,18 @@ body {
     
     .hud {
         font-size: 16px;
+    }
+    
+    .mobile-controls {
+        display: block;
+    }
+    
+    .controls-info {
+        display: none;
+    }
+    
+    .messages {
+        font-size: 12px;
+        max-height: 60px;
     }
 }

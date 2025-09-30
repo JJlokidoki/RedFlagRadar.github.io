@@ -56,6 +56,81 @@ let lastPowerupSpawn = Date.now();
 document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
 document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
+// Мобильное управление
+const joystick = document.getElementById('joystick');
+const joystickStick = document.getElementById('joystickStick');
+const fireBtn = document.getElementById('fireBtn');
+
+let joystickActive = false;
+let joystickAngle = 0;
+let joystickDistance = 0;
+
+if (joystick) {
+    joystick.addEventListener('touchstart', handleJoystickStart, { passive: false });
+    joystick.addEventListener('touchmove', handleJoystickMove, { passive: false });
+    joystick.addEventListener('touchend', handleJoystickEnd, { passive: false });
+}
+
+if (fireBtn) {
+    fireBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        keys[' '] = true;
+    }, { passive: false });
+    
+    fireBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        keys[' '] = false;
+    }, { passive: false });
+}
+
+function handleJoystickStart(e) {
+    e.preventDefault();
+    joystickActive = true;
+    updateJoystick(e.touches[0]);
+}
+
+function handleJoystickMove(e) {
+    e.preventDefault();
+    if (joystickActive) {
+        updateJoystick(e.touches[0]);
+    }
+}
+
+function handleJoystickEnd(e) {
+    e.preventDefault();
+    joystickActive = false;
+    joystickAngle = 0;
+    joystickDistance = 0;
+    joystickStick.style.transform = 'translate(-50%, -50%)';
+    
+    // Отключаем все направления
+    keys['w'] = false;
+    keys['s'] = false;
+    keys['a'] = false;
+    keys['d'] = false;
+    keys['arrowup'] = false;
+    keys['arrowdown'] = false;
+    keys['arrowleft'] = false;
+    keys['arrowright'] = false;
+}
+
+function updateJoystick(touch) {
+    const rect = joystick.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const deltaX = touch.clientX - centerX;
+    const deltaY = touch.clientY - centerY;
+    
+    joystickAngle = Math.atan2(deltaY, deltaX);
+    joystickDistance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), 45);
+    
+    const stickX = Math.cos(joystickAngle) * joystickDistance;
+    const stickY = Math.sin(joystickAngle) * joystickDistance;
+    
+    joystickStick.style.transform = `translate(calc(-50% + ${stickX}px), calc(-50% + ${stickY}px))`;
+}
+
 function addMessage(text) {
     const msg = document.createElement('div');
     msg.className = 'message';
@@ -67,20 +142,32 @@ function addMessage(text) {
 }
 
 function updatePlayer() {
-    // Поворот
-    if (keys['a'] || keys['arrowleft']) player.angle -= player.rotationSpeed;
-    if (keys['d'] || keys['arrowright']) player.angle += player.rotationSpeed;
-    
-    // Ускорение
-    if (keys['w'] || keys['arrowup']) {
-        player.vx += Math.cos(player.angle) * player.acceleration;
-        player.vy += Math.sin(player.angle) * player.acceleration;
-    }
-    
-    // Торможение / Задний ход
-    if (keys['s'] || keys['arrowdown']) {
-        player.vx -= Math.cos(player.angle) * player.acceleration;
-        player.vy -= Math.sin(player.angle) * player.acceleration;
+    // Мобильное управление джойстиком
+    if (joystickActive && joystickDistance > 15) {
+        // Поворачиваем корабль в направлении джойстика
+        player.angle = joystickAngle;
+        
+        // Ускорение в направлении джойстика пропорционально отклонению
+        const force = joystickDistance / 45; // Нормализованная сила 0-1
+        player.vx += Math.cos(joystickAngle) * player.acceleration * force * 2;
+        player.vy += Math.sin(joystickAngle) * player.acceleration * force * 2;
+    } else {
+        // Обычное клавиатурное управление
+        // Поворот
+        if (keys['a'] || keys['arrowleft']) player.angle -= player.rotationSpeed;
+        if (keys['d'] || keys['arrowright']) player.angle += player.rotationSpeed;
+        
+        // Ускорение
+        if (keys['w'] || keys['arrowup']) {
+            player.vx += Math.cos(player.angle) * player.acceleration;
+            player.vy += Math.sin(player.angle) * player.acceleration;
+        }
+        
+        // Торможение / Задний ход
+        if (keys['s'] || keys['arrowdown']) {
+            player.vx -= Math.cos(player.angle) * player.acceleration;
+            player.vy -= Math.sin(player.angle) * player.acceleration;
+        }
     }
     
     // Трение

@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>RedFlagRadar</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -28,6 +30,15 @@
             <div class="control-item">D / → — Поворот вправо</div>
             <div class="control-item">ПРОБЕЛ — Выстрел</div>
         </div>
+    </div>
+
+    <div class="mobile-controls" id="mobileControls">
+        <div class="joystick-area" id="joystick">
+            <div class="joystick-base">
+                <div class="joystick-stick" id="joystickStick"></div>
+            </div>
+        </div>
+        <button class="fire-btn" id="fireBtn">🔥</button>
     </div>
 
     <div id="victoryModal" class="modal">
