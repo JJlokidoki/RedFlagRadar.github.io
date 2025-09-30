@@ -179,6 +179,27 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 10px;
     margin-top: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.name-buttons::-webkit-scrollbar {
+    width: 8px;
+}
+
+.name-buttons::-webkit-scrollbar-track {
+    background: #001a00;
+    border: 1px solid #0f0;
+}
+
+.name-buttons::-webkit-scrollbar-thumb {
+    background: #0f0;
+    border-radius: 4px;
+}
+
+.name-buttons::-webkit-scrollbar-thumb:hover {
+    background: #0ff;
 }
 
 .name-btn {
