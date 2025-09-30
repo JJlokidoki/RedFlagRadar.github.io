@@ -148,9 +148,6 @@ function updatePlayer() {
 }
 
 function spawnEnemy() {
-    // Не спавним если нет доступных имён
-    if (availableNames.length === 0) return;
-    
     const side = Math.floor(Math.random() * 4);
     let x, y;
     
@@ -163,9 +160,15 @@ function spawnEnemy() {
     const speed = 1 + Math.random() * 0.5;
     
     // Берём случайное имя из доступных и удаляем его
-    const nameIndex = Math.floor(Math.random() * availableNames.length);
-    const enemyName = availableNames[nameIndex];
-    availableNames.splice(nameIndex, 1);
+    let enemyName;
+    if (availableNames.length > 0) {
+        const nameIndex = Math.floor(Math.random() * availableNames.length);
+        enemyName = availableNames[nameIndex];
+        availableNames.splice(nameIndex, 1);
+    } else {
+        // Если все имена использованы, берём из исходного списка
+        enemyName = enemyNames[Math.floor(Math.random() * enemyNames.length)];
+    }
     
     enemies.push({
         x, y,
