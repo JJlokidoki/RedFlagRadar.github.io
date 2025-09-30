@@ -10,11 +10,16 @@ const shareBtn = document.getElementById('shareBtn');
 const shareMessage = document.getElementById('shareMessage');
 const reviveModal = document.getElementById('reviveModal');
 const enemyListEl = document.getElementById('enemyList');
+const nameSelectModal = document.getElementById('nameSelectModal');
+const nameButtonsEl = document.getElementById('nameButtons');
+const victoryPlayerNameEl = document.getElementById('victoryPlayerName');
+const revivePlayerNameEl = document.getElementById('revivePlayerName');
 
-const enemyNames = ["T3amW1pe", "m3d03d", "Some0neCybers", "Me0ow5_T3aM", "JIEBOE_yXO", "AppSECeRS", "TA57", "Cringe4Shell", "Sn4ke_3aters", "ScriptKiddies", "fail2ban"];
+const enemyNames = ["RedFlagRadar", "T3amW1pe", "m3d03d", "Some0neCybers", "Me0ow5_T3aM", "JIEBOE_yXO", "AppSECeRS", "TA57", "Cringe4Shell", "Sn4ke_3aters", "ScriptKiddies", "fail2ban"];
 
 const keys = {};
-let gameRunning = true;
+let gameRunning = false;
+let playerName = null;
 
 const player = {
     x: 400,
@@ -36,7 +41,6 @@ const flags = [];
 const sparks = [];
 const powerups = [];
 const eliminatedEnemies = [];
-let availableNames = [...enemyNames];
 let kills = 0;
 
 const BONUS_TYPES = {
@@ -129,6 +133,25 @@ function updateJoystick(touch) {
     const stickY = Math.sin(joystickAngle) * joystickDistance;
     
     joystickStick.style.transform = `translate(calc(-50% + ${stickX}px), calc(-50% + ${stickY}px))`;
+}
+
+// Инициализация выбора имени
+function initNameSelection() {
+    enemyNames.forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = 'name-btn';
+        btn.textContent = name;
+        btn.addEventListener('click', () => selectPlayerName(name));
+        nameButtonsEl.appendChild(btn);
+    });
+}
+
+function selectPlayerName(name) {
+    playerName = name;
+    nameSelectModal.classList.remove('show');
+    gameRunning = true;
+    victoryPlayerNameEl.textContent = playerName;
+    revivePlayerNameEl.textContent = playerName;
 }
 
 function addMessage(text) {
@@ -246,24 +269,13 @@ function spawnEnemy() {
     const angle = Math.atan2(player.y - y, player.x - x);
     const speed = 1 + Math.random() * 0.5;
     
-    // Берём случайное имя из доступных и удаляем его
-    let enemyName;
-    if (availableNames.length > 0) {
-        const nameIndex = Math.floor(Math.random() * availableNames.length);
-        enemyName = availableNames[nameIndex];
-        availableNames.splice(nameIndex, 1);
-    } else {
-        // Если все имена использованы, берём из исходного списка
-        enemyName = enemyNames[Math.floor(Math.random() * enemyNames.length)];
-    }
-    
     enemies.push({
         x, y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         hp: Math.floor(Math.random() * 3) + 1,
         size: 8,
-        name: enemyName
+        name: enemyNames[Math.floor(Math.random() * enemyNames.length)]
     });
 }
 
@@ -362,8 +374,6 @@ function updateEnemies() {
         // Удаление врагов за границами
         if (enemy.x < -50 || enemy.x > canvas.width + 50 || 
             enemy.y < -50 || enemy.y > canvas.height + 50) {
-            // Возвращаем имя обратно в пул
-            availableNames.push(enemy.name);
             enemies.splice(i, 1);
         }
     }
@@ -593,11 +603,14 @@ function drawPowerups() {
 }
 
 function drawEnemies() {
-    ctx.strokeStyle = '#f00';
-    ctx.fillStyle = '#f00';
     ctx.lineWidth = 1.5;
     
     enemies.forEach(enemy => {
+        // Цвет в зависимости от имени (союзники - зелёные)
+        const isAlly = enemy.name === playerName;
+        ctx.strokeStyle = isAlly ? '#0f0' : '#f00';
+        ctx.fillStyle = isAlly ? '#0f0' : '#f00';
+        
         // Разное отображение в зависимости от HP
         if (enemy.hp === 1) {
             // 1 HP - один круг
@@ -736,7 +749,7 @@ shareBtn.addEventListener('click', async () => {
     ctx.textBaseline = 'middle';
     ctx.shadowColor = '#0f0';
     ctx.shadowBlur = 15;
-    ctx.fillText('RedFlagRadar победил!', canvas.width / 2, canvas.height / 2 - modalHeight / 2 + 50);
+    ctx.fillText(`${playerName} победил!`, canvas.width / 2, canvas.height / 2 - modalHeight / 2 + 50);
     ctx.shadowBlur = 0;
     
     // Список уничтоженных врагов
@@ -770,4 +783,5 @@ shareBtn.addEventListener('click', async () => {
     }
 });
 
+initNameSelection();
 gameLoop();

@@ -41,9 +41,16 @@
         <button class="fire-btn" id="fireBtn">🔥</button>
     </div>
 
+    <div id="nameSelectModal" class="modal show">
+        <div class="modal-content">
+            <h2>Выбери свою команду</h2>
+            <div id="nameButtons" class="name-buttons"></div>
+        </div>
+    </div>
+
     <div id="victoryModal" class="modal">
         <div class="modal-content">
-            <h2>RedFlagRadar победил!</h2>
+            <h2><span id="victoryPlayerName"></span> победил!</h2>
             <div id="enemyList" class="enemy-list"></div>
             <button id="shareBtn">Поделиться</button>
             <p id="shareMessage"></p>
@@ -52,7 +59,7 @@
 
     <div id="reviveModal" class="modal">
         <div class="modal-content">
-            <h2>RedFlagRadar не может проиграть, продолжай</h2>
+            <h2><span id="revivePlayerName"></span> не может проиграть, продолжай</h2>
         </div>
     </div>
 
