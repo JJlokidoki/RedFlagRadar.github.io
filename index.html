@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedFlagRadar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="container">
+        <div class="hud">
+            <div class="hud-item">HP: <span id="health">6</span></div>
+            <div class="hud-item">KILLS: <span id="kills">0</span></div>
+            <div class="hud-item" id="bonusHud" style="display: none;">BONUS: <span id="bonusName"></span></div>
+        </div>
+            <div class="canvas-wrapper">
+                <canvas id="gameCanvas" width="800" height="600"></canvas>
+                <div id="sweep"></div>
+            </div>
+            <div class="messages" id="messages"></div>
+        </div>
+        <div class="controls-info">
+            <h3>УПРАВЛЕНИЕ</h3>
+            <div class="control-item">W / ↑ — Ускорение</div>
+            <div class="control-item">S / ↓ — Торможение / Назад</div>
+            <div class="control-item">A / ← — Поворот влево</div>
+            <div class="control-item">D / → — Поворот вправо</div>
+            <div class="control-item">ПРОБЕЛ — Выстрел</div>
+        </div>
+    </div>
+
+    <div id="victoryModal" class="modal">
+        <div class="modal-content">
+            <h2>RedFlagRadar победил!</h2>
+            <div id="enemyList" class="enemy-list"></div>
+            <button id="shareBtn">Поделиться</button>
+            <p id="shareMessage"></p>
+        </div>
+    </div>
+
+    <div id="reviveModal" class="modal">
+        <div class="modal-content">
+            <h2>RedFlagRadar не может проиграть, продолжай</h2>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
