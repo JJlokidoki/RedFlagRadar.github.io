@@ -13,7 +13,7 @@ const enemyListEl = document.getElementById('enemyList');
 const nameSelectModal = document.getElementById('nameSelectModal');
 const nameButtonsEl = document.getElementById('nameButtons');
 const victoryPlayerNameEl = document.getElementById('victoryPlayerName');
-const revivePlayerNameEl = document.getElementById('revivePlayerName');
+const reviveTextEl = document.getElementById('reviveText');
 const timeStatsEl = document.getElementById('timeStats');
 const shotsStatsEl = document.getElementById('shotsStats');
 
@@ -158,7 +158,7 @@ function selectPlayerName(name) {
     gameStartTime = Date.now();
     shotsFired = 0;
     victoryPlayerNameEl.textContent = playerName;
-    revivePlayerNameEl.textContent = playerName;
+    reviveTextEl.textContent = `${playerName} не может проиграть, продолжай`;
 }
 
 function formatTime(ms) {
@@ -333,6 +333,24 @@ function updateEnemies() {
         const dist = Math.sqrt(dx * dx + dy * dy);
         
         if (dist < player.size + enemy.size) {
+            // Особая логика для RedFlagRadar
+            if (enemy.name === 'RedFlagRadar') {
+                player.hp -= 1337;
+                healthEl.textContent = Math.max(0, player.hp);
+                enemies.splice(i, 1);
+                gameRunning = false;
+                reviveTextEl.textContent = 'RedFlagRadar победил, но ты продолжай';
+                reviveModal.classList.add('show');
+                setTimeout(() => {
+                    reviveModal.classList.remove('show');
+                    reviveTextEl.textContent = `${playerName} не может проиграть, продолжай`;
+                    player.hp = 6;
+                    healthEl.textContent = player.hp;
+                    gameRunning = true;
+                }, 3000);
+                continue;
+            }
+            
             if (armorCharges > 0) {
                 // Броня уничтожает врага
                 armorCharges--;
@@ -380,6 +398,7 @@ function updateEnemies() {
                 
                 if (player.hp <= 0) {
                     gameRunning = false;
+                    reviveTextEl.textContent = `${playerName} не может проиграть, продолжай`;
                     reviveModal.classList.add('show');
                     setTimeout(() => {
                         reviveModal.classList.remove('show');
@@ -471,6 +490,12 @@ function updateBullets() {
             const dist = Math.sqrt(dx * dx + dy * dy);
             
             if (dist < enemy.size + (bullet.size || 2)) {
+                // RedFlagRadar неуязвим
+                if (enemy.name === 'RedFlagRadar') {
+                    bullets.splice(i, 1);
+                    break;
+                }
+                
                 // Big Shot уничтожает врага с одного попадания
                 if (bullet.isBig) {
                     enemy.hp = 0;
@@ -633,10 +658,17 @@ function drawEnemies() {
     ctx.lineWidth = 1.5;
     
     enemies.forEach(enemy => {
-        // Цвет в зависимости от имени (союзники - зелёные)
-        const isAlly = enemy.name === playerName;
-        ctx.strokeStyle = isAlly ? '#0f0' : '#f00';
-        ctx.fillStyle = isAlly ? '#0f0' : '#f00';
+        // Цвет в зависимости от имени
+        let color;
+        if (enemy.name === 'RedFlagRadar') {
+            color = '#FFD700'; // Золотой для RedFlagRadar
+        } else if (enemy.name === playerName) {
+            color = '#0f0'; // Зелёный для союзников
+        } else {
+            color = '#f00'; // Красный для врагов
+        }
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
         
         // Разное отображение в зависимости от HP
         if (enemy.hp === 1) {
