@@ -14,12 +14,17 @@ const nameSelectModal = document.getElementById('nameSelectModal');
 const nameButtonsEl = document.getElementById('nameButtons');
 const victoryPlayerNameEl = document.getElementById('victoryPlayerName');
 const revivePlayerNameEl = document.getElementById('revivePlayerName');
+const timeStatsEl = document.getElementById('timeStats');
+const shotsStatsEl = document.getElementById('shotsStats');
 
 const enemyNames = ["RedFlagRadar", "T3amW1pe", "m3d03d", "Some0neCybers", "Me0ow5_T3aM", "JIEBOE_yXO", "AppSECeRS", "TA57", "Cringe4Shell", "Sn4ke_3aters", "ScriptKiddies", "fail2ban"];
 
 const keys = {};
 let gameRunning = false;
 let playerName = null;
+let shotsFired = 0;
+let gameStartTime = 0;
+let gameEndTime = 0;
 
 const player = {
     x: 400,
@@ -150,8 +155,17 @@ function selectPlayerName(name) {
     playerName = name;
     nameSelectModal.classList.remove('show');
     gameRunning = true;
+    gameStartTime = Date.now();
+    shotsFired = 0;
     victoryPlayerNameEl.textContent = playerName;
     revivePlayerNameEl.textContent = playerName;
+}
+
+function formatTime(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
 
 function addMessage(text) {
@@ -218,6 +232,7 @@ function updatePlayer() {
     // Стрельба
     const now = Date.now();
     if (keys[' '] && now - player.lastShot > 300) {
+        shotsFired++;
         if (activeBonus === 'TRIPLE') {
             // Три снаряда
             for (let offset of [-Math.PI/4, 0, Math.PI/4]) {
@@ -343,6 +358,12 @@ function updateEnemies() {
                         permanent: true
                     });
                     gameRunning = false;
+                    gameEndTime = Date.now();
+                    
+                    // Обновляем статистику
+                    const timePlayed = gameEndTime - gameStartTime;
+                    timeStatsEl.textContent = formatTime(timePlayed);
+                    shotsStatsEl.textContent = shotsFired;
                     
                     enemyListEl.innerHTML = eliminatedEnemies.map(name => 
                         `<div class="enemy-list-item">☠️ "${name}" | Eliminated</div>`
@@ -497,6 +518,12 @@ function updateBullets() {
                             permanent: true
                         });
                         gameRunning = false;
+                        gameEndTime = Date.now();
+                        
+                        // Обновляем статистику
+                        const timePlayed = gameEndTime - gameStartTime;
+                        timeStatsEl.textContent = formatTime(timePlayed);
+                        shotsStatsEl.textContent = shotsFired;
                         
                         // Заполняем список уничтоженных врагов
                         enemyListEl.innerHTML = eliminatedEnemies.map(name => 
@@ -752,11 +779,16 @@ shareBtn.addEventListener('click', async () => {
     ctx.fillText(`${playerName} победил!`, canvas.width / 2, canvas.height / 2 - modalHeight / 2 + 50);
     ctx.shadowBlur = 0;
     
+    // Статистика
+    ctx.font = '16px monospace';
+    const timePlayed = gameEndTime - gameStartTime;
+    ctx.fillText(`⏱️ Время: ${formatTime(timePlayed)}    🔫 Выстрелов: ${shotsFired}`, canvas.width / 2, canvas.height / 2 - modalHeight / 2 + 90);
+    
     // Список уничтоженных врагов
     ctx.font = '14px monospace';
     ctx.textAlign = 'left';
     eliminatedEnemies.forEach((name, index) => {
-        ctx.fillText(`☠️ "${name}" | Eliminated`, canvas.width / 2 - 230, canvas.height / 2 - modalHeight / 2 + 100 + index * 20);
+        ctx.fillText(`☠️ "${name}" | Eliminated`, canvas.width / 2 - 230, canvas.height / 2 - modalHeight / 2 + 120 + index * 20);
     });
     
     try {
